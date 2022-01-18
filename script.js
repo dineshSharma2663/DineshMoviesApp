@@ -14,6 +14,10 @@ const getClassByRate = (vote) => {
 };
 
 const showMovies = (movies) => {
+  const searchValue = document.getElementById("search").value;
+  const headerText = document.getElementById("headerText").innerHTML;
+  const searchResults = "Search results for \'".concat(searchValue, "\'");
+  document.getElementById("headerText").innerHTML = (searchValue && searchValue !== "") ? searchResults : "Find out your favourite movie."
   main.innerHTML = "";
   movies.forEach((movie) => {
     const { title, poster_path, vote_average, overview } = movie;
@@ -37,10 +41,32 @@ const showMovies = (movies) => {
   });
 };
 
+const showPlaceholder = () => {
+  main.innerHTML = "";
+  document.getElementById("headerText").innerHTML =  "No movie found for \'".concat(document.getElementById("search").value, "\'");
+  const placeHolderElement = document.createElement("div");
+  placeHolderElement.classList.add("placeholderContainer");
+  placeHolderElement.innerHTML = `
+  <div class="placeholderImage">
+  <img
+      src="moviePlaceholder.png"
+      alt="No movie placeholder."
+      style="width:250px;height:400px;"
+    />
+  </div>
+  `;
+  main.appendChild(placeHolderElement);
+}
+
 const getMovies = async (url) => {
   const res = await fetch(url);
   const data = await res.json();
-  showMovies(data.results);
+  console.log(data.results);
+  if (data.results.length > 0) {
+    showMovies(data.results);
+  } else {
+    showPlaceholder();
+  }
 };
 
 getMovies(API_URL);
@@ -50,6 +76,6 @@ form.addEventListener("submit", (e) => {
   const searchTerm = search.value;
   if (searchTerm && searchTerm !== "") {
     getMovies(SEARCH_API + searchTerm);
-    search.value = "";
+    //search.value = "";
   } else history.go(0);
 });
